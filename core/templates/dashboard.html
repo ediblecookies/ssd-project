@@ -1,0 +1,15 @@
+<h2>Dashboard</h2>
+<p>Welcome, {{ user.username }}!</p>
+
+{% if request.user.groups.all.0.name == 'admin' %}
+    <p style="color: blue;">Role: Administrator</p>
+    <a href="{% url 'admin_page' %}">Go to Admin Secret Page</a>
+{% else %}
+    <p style="color: green;">Role: Standard User</p>
+{% endif %}
+
+<hr>
+<form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
