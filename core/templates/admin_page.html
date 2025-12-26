@@ -1,3 +1,24 @@
-<h2>Admin Secret Control Panel</h2>
-<p>If you can see this, you are in the 'admin' group!</p>
-<a href="{% url 'dashboard' %}">Back to Dashboard</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Sweet Secure</title>
+    <style>
+        body { background-color: #fce4ec; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .admin-card { background: white; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2); width: 450px; text-align: center; border: 3px solid #f8bbd0; }
+        h2 { color: #d81b60; font-size: 32px; margin: 10px 0; }
+        .secret-box { background-color: #fff1f6; border: 2px dashed #f48fb1; padding: 20px; border-radius: 20px; margin: 20px 0; color: #ad1457; font-weight: 500; }
+        .back-btn { background-color: #f06292; color: white; text-decoration: none; padding: 12px 25px; border-radius: 25px; display: inline-block; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="admin-card">
+        <h2>Admin Panel</h2>
+        <p style="color: #888;">Welcome to the control room</p>
+        <div class="secret-box">
+            <strong>Confidential Access Granted</strong><br>
+            Authorized administrators only.
+        </div>
+        <a href="{% url 'dashboard' %}" class="back-btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>
