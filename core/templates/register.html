@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Secure Admin Page</title>
+    <style>
+        body { 
+            background-color: #ffeef2; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.4); 
+            width: 100%; 
+            max-width: 480px; 
+            text-align: center; 
+            border: 2px solid #ffcad4; 
+            margin: 20px; 
+        }
+        h2 { color: #ff8fa3; font-size: 28px; margin-bottom: 25px; }
+        form p { text-align: left; color: #ff8fa3; font-weight: bold; margin-bottom: 15px; }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 5px; 
+            border: 2px solid #ffcad4; 
+            border-radius: 15px; 
+            box-sizing: border-box; 
+            outline: none; 
+        }
+        .helptext { font-size: 11px; color: #999; display: block; margin-top: 5px; font-weight: normal; }
+        button { 
+            background-color: #ffb3c1; 
+            color: white; 
+            border: none; 
+            padding: 14px 60px; 
+            border-radius: 25px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 25px; 
+            font-weight: bold; 
+        }
+        button:hover { background-color: #ff8fa3; transform: scale(1.05); }
+        a { color: #ff8fa3; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Secure Admin Page</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+        <p style="text-align: center; font-weight: normal; margin-top: 25px;">
+            Already have an account? <br> 
+            <a href="{% url 'login' %}">Login here</a>
+        </p>
+    </div>
+</body>
+</html>
