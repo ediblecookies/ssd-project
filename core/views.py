@@ -6,27 +6,19 @@ from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.dispatch import receiver
 from .models import AuditLog
 
-# Logic untuk check Admin
+# Bouncer: Hanya benarkan group 'admin'
 def is_admin(user):
     return user.groups.filter(name='admin').exists()
 
-# Signal: Rekod login berjaya
+# Automatik rekod login berjaya
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
-    AuditLog.objects.create(
-        user=user, 
-        action="Login Berjaya", 
-        ip_address=request.META.get('REMOTE_ADDR')
-    )
+    AuditLog.objects.create(user=user, action="Login Berjaya", ip_address=request.META.get('REMOTE_ADDR'))
 
-# Signal: Rekod login gagal
+# Automatik rekod login gagal
 @receiver(user_login_failed)
 def log_user_login_failed(sender, credentials, request, **kwargs):
-    AuditLog.objects.create(
-        user=None, 
-        action=f"Login Gagal (Username: {credentials.get('username')})", 
-        ip_address=request.META.get('REMOTE_ADDR')
-    )
+    AuditLog.objects.create(user=None, action=f"Login Gagal (User: {credentials.get('username')})", ip_address=request.META.get('REMOTE_ADDR'))
 
 def register(request):
     if request.method == 'POST':
