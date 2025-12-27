@@ -1,24 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Panel -  Secure Admin Page</title>
+    <title>Audit Log - Secure Admin Page</title>
     <style>
-        body { background-color: #fce4ec; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .admin-card { background: white; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2); width: 100%; max-width: 500px; text-align: center; border: 3px solid #f8bbd0; }
-        h2 { color: #d81b60; font-size: 32px; margin: 0 0 10px 0; }
-        .secret-box { background-color: #fff1f6; border: 2px dashed #f48fb1; padding: 25px; border-radius: 20px; margin: 25px 0; color: #ad1457; font-weight: 500; line-height: 1.6; }
-        .back-btn { background-color: #f06292; color: white; text-decoration: none; padding: 12px 30px; border-radius: 25px; display: inline-block; font-weight: bold; transition: 0.3s; }
+        body { background-color: #fce4ec; font-family: 'Segoe UI', sans-serif; padding: 40px; margin: 0; }
+        .admin-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 35px; 
+            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2); 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            border: 3px solid #f8bbd0; 
+        }
+        h2 { color: #d81b60; text-align: center; font-size: 32px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th { background-color: #f8bbd0; color: #d81b60; padding: 15px; text-align: left; border-bottom: 2px solid #f48fb1; }
+        td { padding: 15px; border-bottom: 1px solid #fce4ec; color: #555; font-size: 14px; }
+        tr:hover { background-color: #fff1f6; }
+        .status-success { color: #2ecc71; font-weight: bold; }
+        .status-fail { color: #e74c3c; font-weight: bold; }
+        .back-btn { 
+            background-color: #f06292; 
+            color: white; 
+            text-decoration: none; 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            display: inline-block; 
+            margin-top: 30px; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
         .back-btn:hover { background-color: #d81b60; transform: translateY(-2px); }
     </style>
 </head>
 <body>
     <div class="admin-card">
-        <h2>Admin Panel</h2>
-        <p style="color: #888;">Authorized Access Only</p>
-        <div class="secret-box">
-            <strong>Security Status: Confirmed</strong><br>
-            You are viewing this because you have been assigned to the administrator group.
-        </div>
+        <h2>Secure Admin Page: Audit Logs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>IP Address</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td><strong>{{ log.user|default:"Anonymous" }}</strong></td>
+                    <td class="{% if 'Berjaya' in log.action %}status-success{% else %}status-fail{% endif %}">
+                        {{ log.action }}
+                    </td>
+                    <td>{{ log.ip_address }}</td>
+                    <td>{{ log.timestamp|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;">No activity recorded yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <a href="{% url 'dashboard' %}" class="back-btn">Return to Dashboard</a>
     </div>
 </body>
