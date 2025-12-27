@@ -45,6 +45,10 @@ def dashboard(request):
     return render(request, 'dashboard.html')
 
 @login_required
+def profile(request):
+    return render(request, 'profile.html')
+
+@login_required
 @user_passes_test(is_admin, login_url='dashboard')
 def admin_page(request):
     logs = AuditLog.objects.all().order_by('-timestamp')

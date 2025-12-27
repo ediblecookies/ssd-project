@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard - Secure Admin Page</title>
     <style>
         body { background-color: #ffeef2; font-family: 'Segoe UI', sans-serif; padding: 40px; }
         .container { background: white; padding: 30px; border-radius: 25px; border: 2px solid #ffcad4; max-width: 600px; margin: 0 auto; text-align: center;}
         .user-badge { background: #fff0f3; padding: 10px 20px; border-radius: 50px; display: inline-block; color: #ff8fa3; font-weight: bold; }
         .admin-btn { background-color: #f8adff; color: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
         .logout-btn { background: none; border: 2px solid #ff8fa3; color: #ff8fa3; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 20px;}
+        .nav-link { color: #ff8fa3; text-decoration: none; font-weight: bold; display: block; margin: 10px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Hello, <span class="user-badge">{{ user.username }}</span></h2>
+        <h2>Welcome, <span class="user-badge">{{ user.username }}</span></h2>
         
+        <a href="{% url 'profile' %}" class="nav-link">View My Profile</a>
+
         {% if request.user.groups.all.0.name == 'admin' %}
             <p style="color: #d63384;">Role: Administrator</p>
-            <a href="{% url 'admin_page' %}" class="admin-btn">Access Admin Secret Panel</a>
+            <a href="{% url 'admin_page' %}" class="admin-btn">Access Audit Log Panel</a>
         {% else %}
             <p style="color: #ff8fa3;">Role: Standard User</p>
         {% endif %}
