@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from .models import AuditLog
 
 # --- CUSTOM REGISTRATION FORM ---
+# This class handles the email field and role selection requirement
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email Address")
     
@@ -32,11 +33,14 @@ def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save() # Password hashing happens here automatically
+            user = form.save() # Automatic Password Hashing
             role_name = form.cleaned_data.get('role')
+            
+            # RBAC: Assigning user to the selected group
             group, created = Group.objects.get_or_create(name=role_name)
             user.groups.add(group)
             
+            # Audit Logging
             AuditLog.objects.create(
                 user=user, 
                 action=f"CREATE: Account created as {role_name.upper()}", 
@@ -57,7 +61,6 @@ def login_view(request):
             AuditLog.objects.create(user=user, action="LOGIN_SUCCESS", ip_address=request.META.get('REMOTE_ADDR'))
             return redirect('dashboard')
         else:
-            # Record failed login attempt
             AuditLog.objects.create(user=None, action="LOGIN_FAIL", ip_address=request.META.get('REMOTE_ADDR'))
     else:
         form = AuthenticationForm()
@@ -67,16 +70,21 @@ def login_view(request):
 def dashboard(request):
     return render(request, 'dashboard.html')
 
+# --- THIS WAS THE MISSING FUNCTION CAUSING THE ERROR ---
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
+
 @login_required
 def admin_page(request):
-    # RBAC: Check if user is in 'admin' group
+    # RBAC Security Check
     if not request.user.groups.filter(name='admin').exists():
         AuditLog.objects.create(
             user=request.user, 
             action="UNAUTHORIZED_ACCESS_ATTEMPT", 
             ip_address=request.META.get('REMOTE_ADDR')
         )
-        raise PermissionDenied # Shows the 403 Access Denied page
+        raise PermissionDenied # Redirects to your custom 403.html
     
     logs = AuditLog.objects.all().order_by('-timestamp')
     return render(request, 'admin_page.html', {'logs': logs})
