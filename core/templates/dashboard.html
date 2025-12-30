@@ -4,27 +4,46 @@
     <title>Dashboard - Secure Admin Page</title>
     <style>
         body { background-color: #ffeef2; font-family: 'Segoe UI', sans-serif; padding: 40px; }
-        .container { background: white; padding: 30px; border-radius: 25px; border: 2px solid #ffcad4; max-width: 600px; margin: 0 auto; text-align: center;}
+        .container { background: white; padding: 30px; border-radius: 25px; border: 2px solid #ffcad4; max-width: 600px; margin: 0 auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05);}
+        
         .user-badge { background: #fff0f3; padding: 10px 20px; border-radius: 50px; display: inline-block; color: #ff8fa3; font-weight: bold; }
-        .admin-btn { background-color: #f8adff; color: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: bold; }
-        .logout-btn { background: none; border: 2px solid #ff8fa3; color: #ff8fa3; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 20px;}
-        .nav-link { color: #ff8fa3; text-decoration: none; font-weight: bold; display: block; margin: 10px 0; }
+        
+        /* Role Specific Styling */
+        .role-box { padding: 15px; border-radius: 15px; margin: 20px 0; font-weight: bold; }
+        .admin-role { background-color: #fce4ec; border: 2px dashed #f06292; color: #d81b60; }
+        .user-role { background-color: #f5f5f5; border: 2px solid #e0e0e0; color: #757575; }
+        
+        .admin-btn { background-color: #f06292; color: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; display: inline-block; margin-top: 10px; font-weight: bold; transition: 0.3s; }
+        .admin-btn:hover { background-color: #d81b60; transform: scale(1.05); }
+        
+        .logout-btn { background: white; border: 2px solid #ff8fa3; color: #ff8fa3; padding: 8px 25px; border-radius: 20px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: 0.3s;}
+        .logout-btn:hover { background: #ff8fa3; color: white; }
+        
+        .nav-link { color: #ff8fa3; text-decoration: none; font-weight: bold; display: block; margin: 15px 0; font-size: 14px; }
+        .nav-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Welcome, <span class="user-badge">{{ user.username }}</span></h2>
         
-        <a href="{% url 'profile' %}" class="nav-link">View My Profile</a>
-
         {% if request.user.groups.all.0.name == 'admin' %}
-            <p style="color: #d63384;">Role: Administrator</p>
-            <a href="{% url 'admin_page' %}" class="admin-btn">Access Audit Log Panel</a>
+            <div class="role-box admin-role">
+                🌟 ROLE: ADMINISTRATOR
+                <p style="font-size: 13px; font-weight: normal; margin-top: 5px;">You have clearance to view system audit logs and security tracks.</p>
+                <a href="{% url 'admin_page' %}" class="admin-btn">Access Audit Log Panel</a>
+            </div>
         {% else %}
-            <p style="color: #ff8fa3;">Role: Standard User</p>
+            <div class="role-box user-role">
+                👤 ROLE: STANDARD USER
+                <p style="font-size: 13px; font-weight: normal; margin-top: 5px;">Your account is active. Please contact an admin for elevated privileges.</p>
+            </div>
         {% endif %}
 
-        <hr style="border: 1px solid #ffeef2; margin: 20px 0;">
+        <hr style="border: 0; border-top: 1px solid #ffeef2; margin: 20px 0;">
+        
+        <a href="{% url 'profile' %}" class="nav-link">Edit My Profile</a>
+
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit" class="logout-btn">Logout</button>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>403 - Access Denied</title>
+    <style>
+        body { background-color: #ffeef2; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 50px; border-radius: 30px; border: 3px solid #ff8fa3; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { color: #ff4d6d; font-size: 48px; margin: 0; }
+        p { color: #555; font-size: 18px; margin: 20px 0; }
+        .back-btn { background: #ffb3c1; color: white; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>STOP! 🛑</h1>
+        <p>You do not have <b>Administrator</b> permissions to view this page.</p>
+        <a href="{% url 'dashboard' %}" class="back-btn">Return to Dashboard</a>
+    </div>
+</body>
+</html>

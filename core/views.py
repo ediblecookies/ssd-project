@@ -1,67 +1,90 @@
+from django import forms
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import AuditLog
+from django.contrib.auth.models import Group, User
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from .models import AuditLog
 
-# Helper: Check if user is in 'admin' group
-def is_admin(user):
-    return user.groups.filter(name='admin').exists()
+# --- CUSTOM REGISTRATION FORM ---
+class UserRegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True, label="Email Address")
+    
+    ROLE_CHOICES = [
+        ('user', 'Standard User'),
+        ('admin', 'Administrator'),
+    ]
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, 
+        required=True, 
+        label="Select Role",
+        widget=forms.Select(attrs={'class': 'role-selector'})
+    )
 
-# REGISTER VIEW
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email',)
+
+# --- VIEWS ---
+
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # AUTO-ASSIGN TO 'user' GROUP
-            group, created = Group.objects.get_or_create(name='user')
+            user = form.save() # Password hashing happens here automatically
+            role_name = form.cleaned_data.get('role')
+            group, created = Group.objects.get_or_create(name=role_name)
             user.groups.add(group)
             
-            AuditLog.objects.create(user=user, action="Account Created & Success! Login", ip_address=request.META.get('REMOTE_ADDR'))
+            AuditLog.objects.create(
+                user=user, 
+                action=f"CREATE: Account created as {role_name.upper()}", 
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
             login(request, user)
             return redirect('dashboard')
     else:
-        form = UserCreationForm()
+        form = UserRegistrationForm()
     return render(request, 'register.html', {'form': form})
 
-# LOGIN VIEW
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            AuditLog.objects.create(user=user, action="Success! Login", ip_address=request.META.get('REMOTE_ADDR'))
+            AuditLog.objects.create(user=user, action="LOGIN_SUCCESS", ip_address=request.META.get('REMOTE_ADDR'))
             return redirect('dashboard')
+        else:
+            # Record failed login attempt
+            AuditLog.objects.create(user=None, action="LOGIN_FAIL", ip_address=request.META.get('REMOTE_ADDR'))
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
-# DASHBOARD VIEW
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
-# PROFILE VIEW
-@login_required
-def profile_view(request):
-    return render(request, 'profile.html')
-
-# ADMIN LOGS VIEW (PROTECTED)
-
 @login_required
 def admin_page(request):
-    if not is_admin(request.user):
-        raise PermissionDenied # This will look for 403.html
+    # RBAC: Check if user is in 'admin' group
+    if not request.user.groups.filter(name='admin').exists():
+        AuditLog.objects.create(
+            user=request.user, 
+            action="UNAUTHORIZED_ACCESS_ATTEMPT", 
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        raise PermissionDenied # Shows the 403 Access Denied page
+    
     logs = AuditLog.objects.all().order_by('-timestamp')
     return render(request, 'admin_page.html', {'logs': logs})
 
-# LOGOUT VIEW
 def logout_view(request):
     if request.method == 'POST':
+        if request.user.is_authenticated:
+            AuditLog.objects.create(user=request.user, action="LOGOUT", ip_address=request.META.get('REMOTE_ADDR'))
         logout(request)
         return redirect('login')
     return redirect('dashboard')

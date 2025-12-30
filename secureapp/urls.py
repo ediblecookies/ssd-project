@@ -1,7 +1,9 @@
+from django.contrib import admin
 from django.urls import path
-from . import views
+from core import views
 
 urlpatterns = [
+    path('django-admin/', admin.site.urls),
     path('', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('dashboard/', views.dashboard, name='dashboard'),
